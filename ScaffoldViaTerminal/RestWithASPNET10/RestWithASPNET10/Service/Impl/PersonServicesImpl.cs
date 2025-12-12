@@ -1,55 +1,58 @@
 ﻿using RestWithASPNET10.Model;
+using RestWithASPNET10.Model.Context;
+using System;
 
 namespace RestWithASPNET10.Service.Impl
 {
     public class PersonServicesImpl : IPerasonService
     {
+        private MSSQLContext _context;
+        public PersonServicesImpl(MSSQLContext context)
+        {
+            _context = context;
+        }
+
         public Person Create(Person person)
         {
-            person.Id = new Random().Next(1, 1000); //Simulate ID assignment
+            _context.Persons.Add(person);
+            _context.SaveChanges();
             return person;
 
         }
         public Person Update(Person person)
         {
-            return person;
+            var exist = _context.Persons.Find(FindById(person.Id)); 
+            if (exist != null)
+            {
+                _context.Entry(exist).CurrentValues.SetValues(person);
+                _context.SaveChanges();
+                return person;
+            }
+            else
+            {
+                return null;
+            }
+
         }
 
         public void Delete(long id)
         {
-            //Simulate delete operation
+            var exist = _context.Persons.Find(FindById(id));
+            if (exist != null)
+            {
+                _context.Remove(exist);
+                _context.SaveChanges();
+            }
         }
         public Person FindById(long id)
         {
-            var person = mockPerson();
-            return person;
+            return _context.Persons.Find(id);
         }
 
 
         public List<Person> FindAll()
         {
-
-            List<Person> persons = new List<Person>();
-            for (int i = 0; i < 8; i++)
-            {
-                var person = mockPerson();
-                persons.Add(person);
-            }
-            return persons;
-
-        }
-        private Person mockPerson()
-        {
-            var person = new Person
-            {
-                Id = new Random().Next(1, 1000),
-                FirstName = "John",
-                LastName = "Doe",
-                Address = "123 rua",
-                gender = "male"
-
-            };
-            return person;
+            return _context.Persons.ToList();
         }
     }
 }
