@@ -4,6 +4,8 @@ using RestWithASPNET10.Service.Impl;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddSerilogLogging();
+
 //Add services to the container
 builder.Services.AddControllers();
 builder.Services.AddDatabaseConfiguration(builder.Configuration);
